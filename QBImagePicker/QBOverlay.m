@@ -6,4 +6,7 @@
 //  Copyright © 2020 Katsuma Tanaka. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import "QBOverlay.h"
+
+@implementation QBOverlayView
+@end

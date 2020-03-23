@@ -1,13 +1,15 @@
 //
-//  QBOverlay.h
+//  QBOverlayView.h
 //  QBImagePicker
 //
 //  Created by dungpt on 3/23/20.
 //  Copyright © 2020 Katsuma Tanaka. All rights reserved.
 //
 
-#ifndef QBOverlay_h
-#define QBOverlay_h
+#import <UIKit/UIKit.h>
+#import "QBCheckmarkView.h"
 
-
-#endif /* QBOverlay_h */
+IB_DESIGNABLE
+@interface QBOverlayView : UIView
+@property (weak, nonatomic) IBOutlet QBCheckmarkView *checkmark;
+@end

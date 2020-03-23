@@ -5,7 +5,6 @@
 //  Created by Katsuma Tanaka on 2015/04/03.
 //  Copyright (c) 2015 Katsuma Tanaka. All rights reserved.
 //
-
 #import "QBAssetsViewController.h"
 #import <Photos/Photos.h>
 
@@ -13,6 +12,7 @@
 #import "QBImagePickerController.h"
 #import "QBAssetCell.h"
 #import "QBVideoIndicatorView.h"
+
 
 static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     return CGSizeMake(size.width * scale, size.height * scale);
@@ -99,6 +99,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
         [self.navigationItem setRightBarButtonItem:nil animated:NO];
     }
     
+
     [self updateDoneButtonState];
     [self updateSelectionInfo];
     [self.collectionView reloadData];
@@ -197,11 +198,11 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     UIBarButtonItem *rightSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:NULL];
     
     // Info label
-    NSDictionary *attributes = @{ NSForegroundColorAttributeName: [UIColor blackColor] };
+    // NSDictionary *attributes = @{ NSForegroundColorAttributeName: [UIColor blackColor] };
     UIBarButtonItem *infoButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:NULL];
     infoButtonItem.enabled = NO;
-    [infoButtonItem setTitleTextAttributes:attributes forState:UIControlStateNormal];
-    [infoButtonItem setTitleTextAttributes:attributes forState:UIControlStateDisabled];
+    // [infoButtonItem setTitleTextAttributes:attributes forState:UIControlStateNormal];
+    // [infoButtonItem setTitleTextAttributes:attributes forState:UIControlStateDisabled];
     
     self.toolbarItems = @[leftSpace, infoButtonItem, rightSpace];
 }
@@ -447,8 +448,8 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     QBAssetCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"AssetCell" forIndexPath:indexPath];
     cell.tag = indexPath.item;
     cell.showsOverlayViewWhenSelected = self.imagePickerController.allowsMultipleSelection;
-    
-    // Image
+
+	// Image
     PHAsset *asset = self.fetchResult[indexPath.item];
     CGSize itemSize = [(UICollectionViewFlowLayout *)collectionView.collectionViewLayout itemSize];
     CGSize targetSize = CGSizeScale(itemSize, [[UIScreen mainScreen] scale]);
@@ -483,12 +484,20 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
         cell.videoIndicatorView.hidden = YES;
     }
     
-    // Selection state
-    if ([self.imagePickerController.selectedAssets containsObject:asset]) {
-        [cell setSelected:YES];
+    // Selection state , update counter
+	// [self updateCellsCountersx:collectionView indexPaths:self.imagePickerController.selectedIndexPaths];
+	//
+	NSInteger x = [self.imagePickerController.selectedIndexPaths indexOfObject:indexPath];
+    if(NSNotFound != x) {
+        // [cell setSelected:true];
         [collectionView selectItemAtIndexPath:indexPath animated:NO scrollPosition:UICollectionViewScrollPositionNone];
-    }
-    
+		[cell updateCounter:(x+1)];
+	} else {
+		[cell setSelected:false];
+	}
+	// [cell layoutSubviews];
+
+
     return cell;
 }
 
@@ -568,10 +577,34 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     return ![self isMaximumSelectionLimitReached];
 }
 
+-(void) updateCellsCountersx:(UICollectionView *)collectionView indexPaths:(NSMutableOrderedSet *) selectedIndexPaths {
+	for (NSUInteger i = 0; i < selectedIndexPaths.count; i++) {
+		// NSLog(@"xxxx %d", i);
+		QBAssetCell *c = [collectionView cellForItemAtIndexPath:selectedIndexPaths[i]];
+		[c updateCounter:(i+1)];
+	}
+}
+
+// -(void) updateCellsCounters:(UICollectionView *)collectionView assets:(NSMutableOrderedSet *)selectedAssets {
+// 	// update cell counter
+// 	NSArray<NSIndexPath *> *indexArray = [collectionView indexPathsForVisibleItems];
+// 	int i=0;
+// 	while(i!=indexArray.count){
+// 		PHAsset *a = self.fetchResult[indexArray[i].item];
+// 		NSInteger x = [selectedAssets indexOfObject:a];
+// 		if(NSNotFound != x) {
+// 			QBAssetCell *c = [collectionView cellForItemAtIndexPath:indexArray[i]];
+// 			[c updateCounter:(x+1)];
+// 		}
+// 	   i++;
+// 	}
+// }
+
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
     QBImagePickerController *imagePickerController = self.imagePickerController;
     NSMutableOrderedSet *selectedAssets = imagePickerController.selectedAssets;
+	NSMutableOrderedSet *selectedIndexPaths = imagePickerController.selectedIndexPaths;
     
     PHAsset *asset = self.fetchResult[indexPath.item];
     
@@ -579,6 +612,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
         if ([self isAutoDeselectEnabled] && selectedAssets.count > 0) {
             // Remove previous selected asset from set
             [selectedAssets removeObjectAtIndex:0];
+			[selectedIndexPaths removeObjectAtIndex:0];
             
             // Deselect previous selected asset
             if (self.lastSelectedItemIndexPath) {
@@ -588,9 +622,11 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
         
         // Add asset to set
         [selectedAssets addObject:asset];
+		[selectedIndexPaths addObject:indexPath];
         
         self.lastSelectedItemIndexPath = indexPath;
-        
+		// NSLog(@"Value of hello = %ld", (long)indexPath.row);
+
         [self updateDoneButtonState];
         
         if (imagePickerController.showsNumberOfSelectedAssets) {
@@ -601,6 +637,11 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
                 [self.navigationController setToolbarHidden:NO animated:YES];
             }
         }
+		
+		
+		// update cell counter
+		// [self updateCellsCounters:collectionView assets:selectedAssets];
+		[self updateCellsCountersx:collectionView indexPaths:selectedIndexPaths];
     } else {
         if ([imagePickerController.delegate respondsToSelector:@selector(qb_imagePickerController:didFinishPickingAssets:)]) {
             [imagePickerController.delegate qb_imagePickerController:imagePickerController didFinishPickingAssets:@[asset]];
@@ -620,11 +661,13 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     
     QBImagePickerController *imagePickerController = self.imagePickerController;
     NSMutableOrderedSet *selectedAssets = imagePickerController.selectedAssets;
+	NSMutableOrderedSet *selectedIndexPaths = imagePickerController.selectedIndexPaths;
     
     PHAsset *asset = self.fetchResult[indexPath.item];
     
     // Remove asset from set
     [selectedAssets removeObject:asset];
+	[selectedIndexPaths removeObject:indexPath];
     
     self.lastSelectedItemIndexPath = nil;
     
@@ -638,6 +681,10 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
             [self.navigationController setToolbarHidden:YES animated:YES];
         }
     }
+	
+	// update cell counter
+	// [self updateCellsCounters:collectionView assets:selectedAssets];
+	[self updateCellsCountersx:collectionView indexPaths:selectedIndexPaths];
     
     if ([imagePickerController.delegate respondsToSelector:@selector(qb_imagePickerController:didDeselectAsset:)]) {
         [imagePickerController.delegate qb_imagePickerController:imagePickerController didDeselectAsset:asset];

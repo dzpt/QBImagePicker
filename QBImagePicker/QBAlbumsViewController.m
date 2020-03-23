@@ -117,11 +117,11 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     UIBarButtonItem *rightSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:NULL];
     
     // Info label
-    NSDictionary *attributes = @{ NSForegroundColorAttributeName: [UIColor blackColor] };
+    // NSDictionary *attributes = @{ NSForegroundColorAttributeName: [UIColor blackColor] };
     UIBarButtonItem *infoButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:NULL];
     infoButtonItem.enabled = NO;
-    [infoButtonItem setTitleTextAttributes:attributes forState:UIControlStateNormal];
-    [infoButtonItem setTitleTextAttributes:attributes forState:UIControlStateDisabled];
+    // [infoButtonItem setTitleTextAttributes:attributes forState:UIControlStateNormal];
+    // [infoButtonItem setTitleTextAttributes:attributes forState:UIControlStateDisabled];
     
     self.toolbarItems = @[leftSpace, infoButtonItem, rightSpace];
 }
