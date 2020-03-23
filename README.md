@@ -12,6 +12,8 @@ A clone of UIImagePickerController with multiple selection support.
 ## Features
 
 - Allows multiple selection of photos and videos
+- Support displaying counter instead of checkmark
+- Support dark theme for ios13
 - Fast and memory-efficient scrolling
 - Provides similar user interface to the built-in image picker
 - Customizable (grid size, navigation message, etc.)
